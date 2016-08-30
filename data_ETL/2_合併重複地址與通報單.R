@@ -3,9 +3,12 @@
 library(dplyr)
 library(sqldf)
 
-#在重複地址後填上通報單號(ACTIONID)及其他predictive index
+repAddress <- read.csv("repAddress.csv")
+circular <- read.csv("通報表被害人相對人資料.csv")
+
+#在重複地址後方填入通報單號(ACTIONID)及其他predictive index
 merge <- sqldf(
-    "select repAdress.*, circular.MAIMED, ACTIONID, VDTYPE, SEXID, IDTYPE, OTHERIDTYPE, OCCUPATION, OTHEROCCUPATION, EDUCATION
+    "select repAddress.*, circular.MAIMED, ACTIONID, VDTYPE, SEXID, IDTYPE, OTHERIDTYPE, OCCUPATION, OTHEROCCUPATION, EDUCATION
     from repAdress left join circular on repAdress.居住完整地址 = circular.居住完整地址"
     )
     
