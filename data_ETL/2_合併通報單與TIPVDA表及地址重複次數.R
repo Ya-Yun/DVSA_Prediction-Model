@@ -1,4 +1,4 @@
-#合併重複地址與通報單，以通報單號做為primary key (替代身分證號)
+#合併重複地址與通報單，以通報單號做為 Primary key
 
 library(dplyr)
 library(sqldf)
