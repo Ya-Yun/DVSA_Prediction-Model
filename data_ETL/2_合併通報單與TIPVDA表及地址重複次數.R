@@ -41,6 +41,16 @@ tipvda <- read.csv("含TIPVDA表之通報資訊.csv")
         #Error in .verify.JDBC.result(s, "Unable to execute JDBC statement ", statement); Table "tipvda" not found; SQL statement:
 merge2 <-merge(tipvda, vic_off_cir, by.x = "ACTIONID", by.y = "ACTIONID") #5300
 
+#原先時間格式無法運算(12/31/2015 21:00:00) ##typeof("time$發生時間YYYMMDDHH")為"interger"，需進行轉換。
+merge2$發生時間YYYMMDDHH <- format(strptime(merge2$發生時間YYYMMDDHH, format="%m/%d/%Y %H:%M:%S"), format = "%m-%d-%Y %H:%M:%S")
+merge2$通報時間YYYMMDDHHSS <- format(strptime(merge2$通報時間YYYMMDDHHSS, format="%m/%d/%Y %H:%M:%S"), format = "%m-%d-%Y %H:%M:%S")
+merge2$受理時間YYYMMDDHHSS <- format(strptime(merge2$受理時間YYYMMDDHHSS, format="%m/%d/%Y %H:%M:%S"), format = "%m-%d-%Y %H:%M:%S")
+merge2$CREATE_TIME <- format(strptime(merge2$CREATE_TIME, format="%m/%d/%Y %H:%M:%S"), format = "%m-%d-%Y %H:%M:%S")
+    #轉換後計算"求助時間"及"年齡"，為risk factors
+    merge2$求助時間 <- difftime(strptime(merge2$受理時間YYYMMDDHHSS, "%m-%d-%Y %H:%M:%S"), strptime(merge2$發生時間YYYMMDDHH, "%m-%d-%Y %H:%M:%S"), units="hours")
+    merge2$AGE <- (difftime(strptime(merge2$發生時間YYYMMDDHH, "%m-%d-%Y %H:%M:%S"), strptime(merge2$BDATE, "%Y/%m/%d"), units = "days"))/365.25 #units沒有年選項
+    merge2$off_AGE <- (difftime(strptime(merge2$發生時間YYYMMDDHH, "%m-%d-%Y %H:%M:%S"), strptime(merge2$off_BDATE, "%Y/%m/%d"), units = "days"))/365.25
+
 
 write.csv(merge, "merge_ActionID_repAddr.csv", row.names = FALSE)
 write.csv(victim_cir, "victim_cir.csv", row.names = FALSE)
