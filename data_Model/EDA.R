@@ -38,14 +38,14 @@ f <- ggplot(EDA, aes(x=通報時是否已死亡.1.0, y = X1.4.5.6, group = 通�
     
 #各題TIPVDA與再犯與否關聯性 ##以第一題為例
 p1 <- plot_ly(
-    x = c("No", "Yes"),
-    y = c(2168, 774),
-    name = "Counts = 1",
+    x = c("Counts = 1", "Counts > 1"),
+    y = c(0.74, 0.75),
+    name = "No",
     type = "bar")
 p2 <- add_trace(p1,
-    x = c("No", "Yes"),
-    y = c(1020, 349),
-    name = "Counts > 1",
-    type = "bar")
-p3 <- layout(p2, barmode = "stack",xaxis = list(title = "X1"), yaxis = list( title = "Quantity"))
+                x = c("Counts = 1", "Counts > 1"),
+                y = c(0.26, 0.25),
+                name = "Yes",
+                type = "bar")
+p3 <- layout(p2, barmode = "stack",xaxis = list(title = "X1"), yaxis = list( title = "Proportion"))
 p3
