@@ -49,3 +49,30 @@ p2 <- add_trace(p1,
                 type = "bar")
 p3 <- layout(p2, barmode = "stack",xaxis = list(title = "X1"), yaxis = list( title = "Proportion"))
 p3
+
+#觀察通報人員種類是否影響TIPVDA分數
+TIPVDA <- read.csv("TIPVDA_complete.csv") #完整填完TIPVDA的通報單
+s <- read.csv("merge_TIPVDA_cir.csv")
+
+merge <- sqldf(
+    "select TIPVDA.*, s.通報人員種類
+    from TIPVDA left join s on TIPVDA.ACTIONID = s.ACTIONID")
+merge$通報人員種類 <- as.character(merge$通報人員種類)
+merge$通報人員種類[merge$通報人員種類 == "警察人員"] <- "Police"
+merge$通報人員種類[merge$通報人員種類 == "醫護人員"] <- "Hospital Staff" 
+merge$通報人員種類[merge$通報人員種類 == "社會工作人員"] <- "Social Worker" 
+merge$通報人員種類[merge$通報人員種類 == "教育人員"] <- "Educators"
+merge$通報人員種類[merge$通報人員種類 == "村里幹事"] <- "village Officers"
+merge$通報人員種類[merge$通報人員種類 == "司(軍)法人員"] <- "Judicial Officers" 
+merge$通報人員種類[merge$通報人員種類 == "其他"] <- "Others" 
+merge$通報人員種類 <- as.factor(merge$通報人員種類)
+
+merge %>%
+    group_by(通報人員種類) %>%
+    dplyr::summarise(mean = mean(TIPVDA),
+                     sd = sd(TIPVDA)) %>%
+    mutate(cv = (sd/mean)*100)
+    
+G <- ggplot(merge, aes(y=TIPVDA,x=通報人員種類,group=通報人員種類)) + geom_boxplot()
+    + labs(title = "TIPVDA vs. Occupation", x = "Occupation")
+G
