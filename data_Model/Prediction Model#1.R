@@ -1,0 +1,41 @@
+#第一次建模預計使用最基本的 Regression analysis
+#Multiple regression for 再犯次數(Count)
+#Logistic Regression for 高危機個案(Binary)
+
+
+DVASdata <- read.csv("imputed_age_DVAS.csv")
+
+
+#Multiple regression for 再犯次數(Count)
+model3<-glm(formula = Count ~ . - ACTIONID - Count - X1.4.5.6 - 高危機.死亡 - 
+    lng - lat - district - town - 施暴武器說明, family = gaussian(link = "identity"), 
+    data = DVASdata, na.action = na.exclude)
+
+summary(model3)
+
+   #以有顯著之項目再跑一個model
+model4<-glm(formula = Count ~ X2 + X8 + 家暴因素.個性.生活習慣不合 + 
+    家暴因素.疑似或罹患精神疾病 + 暴力型態.精神暴力 + 
+    MAIMED + OCCUPATION, family = gaussian(link = "identity"), 
+    data = DVASdata, na.action = na.exclude)
+   
+
+#Logistic Regression for 高危機個案(Binary)
+model1<-glm(formula=高危機.死亡~TIPVDA+X1+X2+X3+X4+X5+X6+X7+X8+X9+X10+X11+X12+X13+X14+X15
+  +家暴因素.不良嗜好.賭博.出入不正當場所+家暴因素.個性.生活習慣不合+家暴因素.其他+家暴因素.子女教養問題
+  +家暴因素.性生活不協調+家暴因素.感情.外遇問題+家暴因素.施用毒品.禁藥或迷幻物品+家暴因素.照顧壓力+家暴因素.疑似或罹患精神疾病
+  +家暴因素.經濟狀況不佳+家暴因素.親屬間相處問題+家暴因素.財務問題+家暴因素.財務支配或借貸問題+家暴因素.酗酒+成人家庭暴力兩造關係
+  +被害人婚姻狀態+暴力型態.性暴力+暴力型態.精神暴力+暴力型態.經濟暴力+暴力型態.肢體暴力+使用武器+自殺意念+自殺行為+受暴持續總月數
+  +求助時間差.小時+MAIMED+AGE+EDUCATION, data=DVASdata, family=binomial(link="logit"), na.action=na.exclude)
+summary(model1)
+
+#使用高斯分佈效果反而比較好？
+model2<-glm(formula=高危機.死亡~TIPVDA+X1+X2+X3+X4+X5+X6+X7+X8+X9+X10+X11+X12+X13+X14+X15
+  +家暴因素.不良嗜好.賭博.出入不正當場所+家暴因素.個性.生活習慣不合+家暴因素.其他+家暴因素.子女教養問題
+    +家暴因素.性生活不協調+家暴因素.感情.外遇問題+家暴因素.施用毒品.禁藥或迷幻物品+家暴因素.照顧壓力+家暴因素.疑似或罹患精神疾病  
+    +家暴因素.經濟狀況不佳+家暴因素.親屬間相處問題+家暴因素.財務問題+家暴因素.財務支配或借貸問題 
+    +家暴因素.酗酒+成人家庭暴力兩造關係+被害人婚姻狀態+暴力型態.性暴力+暴力型態.精神暴力+暴力型態.經濟暴力+暴力型態.肢體暴力
+    +使用武器+自殺意念+自殺行為+受暴持續總月數+求助時間差.小時
+    +MAIMED+AGE+EDUCATION, data=DVASdata, gaussian(link = "identity"), na.action=na.exclude)
+
+## 討論後覺得高危機個案的判斷為依賴TIPVDA及開案評估內容之社工主觀定義，必定共線，因此暫時不作此model
