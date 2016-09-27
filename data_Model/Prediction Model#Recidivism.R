@@ -1,7 +1,5 @@
 #第一次建模預計使用最基本的 Regression analysis
 #Multiple regression for 再犯次數(Count)
-#Logistic Regression for 高危機個案(Binary)
-
 
 DVASdata <- read.csv("imputed_age_DVAS.csv")
 
