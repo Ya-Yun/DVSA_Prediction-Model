@@ -1,5 +1,11 @@
 #第一次建模預計使用最基本的 Regression analysis
 #Multiple regression for 再犯次數(Count)
+library(dplyr)
+library(sqldf)
+library(ggthemes)
+library(ggplot2)
+library(plotly)
+
 
 DVASdata <- read.csv("imputed_age_DVAS.csv")
 
@@ -19,7 +25,7 @@ model4<-glm(formula = Count ~ X2 + X8 + 家暴因素.個性.生活習慣不合 +
 #寫出預測分數
 y1 <- predict.glm(model4,type = "response")
    
-#由於Count=1的通報單涵蓋了所有可能性，因此嘗試改以Count=2-7的單子建模
+##由於Count=1的通報單涵蓋了所有可能性，因此嘗試改以Count=2-7的單子建模
 newdata <- subset(DVASdata, Count > 1 )
 
 model6<-glm(formula = Count ~ . - ACTIONID - Count - X1.4.5.6 - 高危機.死亡 - 
@@ -37,13 +43,19 @@ y4 <- predict.glm(model7,type = "response")
 #寫出包含Count=1的預測分數
 y5 <- predict.lm(model7,DVASdata,type = "response") ##Error in model.frame.default  factor OCCUPATION has new levels 農林漁牧
 #由於Count>1的通報單沒有職業為農林漁牧者，因此抽一個農林漁牧給Count>1，再做一次model
-farmerdata <- subset(DVASdata, Count > 1 )
-farmerdata <- subset(farmerdata, OCCUPATION == "農林漁牧")
+farmerdata <- subset(DVASdata, OCCUPATION == "農林漁牧")
+farmerdata <- subset(farmerdata, ACTIONID == "DV00605925")
 newdata2 <- merge(newdata,farmerdata, all=TRUE)
 
 model8<-glm(formula = Count ~ X1 + X8 + 家暴因素.照顧壓力  + 
     家暴因素.疑似或罹患精神疾病 + 被害人婚姻狀態 + 受暴持續總月數 + 
     MAIMED + OCCUPATION + AGE, family = gaussian(link = "identity"), 
-    data = newdata2, na.action = na.exclude)
+    data = newdata2, na.action = na.exclude) #結果X1就不顯著了....
 y6 <- predict.glm(model8,type = "response")
+#寫出包含Count=1的預測分數
 y7 <- predict.lm(model8,DVASdata,type = "response")
+
+#將預測分數貼回原表單，並畫出樣貌
+DVASdata$Predicty7 <- unlist(y7)
+plot(DVASdata$Count,DVASdata$Predicty7)
+
