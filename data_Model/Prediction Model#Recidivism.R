@@ -24,6 +24,9 @@ model4<-glm(formula = Count ~ X2 + X8 + 家暴因素.個性.生活習慣不合 +
 
 #寫出預測分數
 y1 <- predict.glm(model4,type = "response")
+#將預測分數貼回原表單，並觀察預測效果
+DVASdata$Predicty1 <- unlist(y1)
+plot(DVASdata$Count,DVASdata$Predicty1)
    
 ##由於Count=1的通報單涵蓋了所有可能性，因此嘗試改以Count=2-7的單子建模
 newdata <- subset(DVASdata, Count > 1 )
@@ -58,4 +61,3 @@ y7 <- predict.lm(model8,DVASdata,type = "response")
 #將預測分數貼回原表單，並畫出樣貌
 DVASdata$Predicty7 <- unlist(y7)
 plot(DVASdata$Count,DVASdata$Predicty7)
-
