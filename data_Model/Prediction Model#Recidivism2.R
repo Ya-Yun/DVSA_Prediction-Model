@@ -9,29 +9,60 @@ library(ggplot2)
 library(plotly)
 
 DVASdata <- read.csv("imputed_age_DVAS.csv")
-#Assign to new group
+#Assign to new 3 groups
 DVASdata$Count_plus <- cut(DVASdata$Count, breaks=c(1,2,3,Inf), right = F, labels = c(1,2,3))
 #Resampling
 set.seed(123)
 dat1 <- DVASdata[which(DVASdata$Count_plus=="1") %>% sample(., 200, replace=TRUE),]
 dat2 <- DVASdata[which(DVASdata$Count_plus=="2") %>% sample(., 200, replace=TRUE),]
 dat3 <- DVASdata[which(DVASdata$Count_plus=="3") %>% sample(., 200, replace=TRUE),]
-out <- rbind(dat1, dat2, dat3)
+out <- rbind(dat1, dat2, dat3) 
+out$Count_plus <- as.numeric(as.character(out$Count_plus)) #class(out$Count_plus) is factor
 
 #Built up a linear regresson model
 model1 <- glm(formula = Count_plus ~ . - ACTIONID - Count - X1.4.5.6 - 高危機.死亡 
     - lng - lat - district - town - 施暴武器說明 - Count_plus, family = gaussian(link = "identity"), 
     data = out, na.action = na.exclude)
-summary(model1)
+summary(model1) #r^2 = .222
 
    #以有顯著之項目再跑一個model
-model4<-glm(formula = Count ~ X2 + X8 + 家暴因素.個性.生活習慣不合 + 
-    家暴因素.疑似或罹患精神疾病 + 暴力型態.精神暴力 + 
-    MAIMED + OCCUPATION, family = gaussian(link = "identity"), 
-    data = DVASdata, na.action = na.exclude)
+model2<-glm(formula = Count_plus ~ X8 + X9 + X10 + 家暴因素.個性.生活習慣不合 + 家暴因素.性生活不協調 +
+    家暴因素.照顧壓力 + 家暴因素.酗酒 + 家暴因素.疑似或罹患精神疾病 + 被害人婚姻狀態 + 暴力型態.經濟暴力 + 
+    自殺意念 + 自殺行為 + 求助時間差.小時 + OCCUPATION, family = gaussian(link = "identity"), 
+    data = out, na.action = na.exclude) 
+summary(model2) #結果r^2更小 = .164
 
 #寫出預測分數
-y1 <- predict.glm(model4,type = "response")
+y1 <- predict.glm(model1,type = "response") #選擇model1
 #將預測分數貼回原表單，並觀察預測效果
-DVASdata$Predicty1 <- unlist(y1)
-plot(DVASdata$Count,DVASdata$Predicty1)
+out$Predicty1 <- unlist(y1) # range 0.74~3.23
+plot(out$Count_plus,out$Predicty1)
+
+
+#Assign to new 2 groups
+DVASdata$Count_plus2 <- cut(DVASdata$Count, breaks=c(1,3,Inf), right = F, labels = c(1,2))
+#Resampling
+set.seed(123)
+dat4 <- DVASdata[which(DVASdata$Count_plus2=="1") %>% sample(., 200, replace=TRUE),]
+dat5 <- DVASdata[which(DVASdata$Count_plus2=="2") %>% sample(., 200, replace=TRUE),]
+out2 <- rbind(dat4, dat5) 
+out2$Count_plus2 <- as.numeric(as.character(out2$Count_plus2)) #class(out$Count_plus) is factor
+
+#Built up a linear regresson model
+model3 <- glm(formula = Count_plus2 ~ . - ACTIONID - Count - X1.4.5.6 - 高危機.死亡 
+    - lng - lat - district - town - 施暴武器說明 - Count_plus - Count_plus2, family = gaussian(link = "identity"), 
+    data = out2, na.action = na.exclude)
+summary(model3) #r^2 = .342
+
+   #以有顯著之項目再跑一個model
+model2<-glm(formula = Count_plus ~ X8 + X9 + X10 + 家暴因素.個性.生活習慣不合 + 家暴因素.性生活不協調 +
+    家暴因素.照顧壓力 + 家暴因素.酗酒 + 家暴因素.疑似或罹患精神疾病 + 被害人婚姻狀態 + 暴力型態.經濟暴力 + 
+    自殺意念 + 自殺行為 + 求助時間差.小時 + OCCUPATION, family = gaussian(link = "identity"), 
+    data = out, na.action = na.exclude) 
+summary(model2) #結果r^2更小 = .164
+
+#寫出預測分數
+y1 <- predict.glm(model1,type = "response") #選擇model1
+#將預測分數貼回原表單，並觀察預測效果
+out$Predicty1 <- unlist(y1) # range 0.74~3.23
+plot(out$Count_plus,out$Predicty1)
