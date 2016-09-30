@@ -68,5 +68,5 @@ out2$Predicty1 <- unlist(y2) # range 0.56~2.17
 plot(out$Count_plus2,out$Predicty1) #此模型看起是目前最具有預測力的！
 
 #倒回去原本的data看看會不會有overfitting的問題
-
+y3 <- predict.lm(model3,DVASdata,type = "response")
 
