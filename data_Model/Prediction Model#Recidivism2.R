@@ -67,6 +67,24 @@ y2 <- predict.glm(model3,type = "response") #選擇model3
 out2$Predicty1 <- unlist(y2) # range 0.56~2.17
 plot(out$Count_plus2,out$Predicty1) #此模型看起是目前最具有預測力的！
 
-#倒回去原本的data看看會不會有overfitting的問題
-y3 <- predict.lm(model3,DVASdata,type = "response")
+
+#聽說我的寫法很怪...所以改成一般常用寫法，以免遭遇error。 ##比如 y3 <- predict.lm(model3,DVASdata,type = "response") 就出不來了！
+out3 <- out2 %>% select(-ACTIONID, -Count, -X1.4.5.6,
+                         -高危機.死亡, -lng, -lat, -district,
+                         -town, -施暴武器說明, -Count_plus, -OCCUPATION) #OCCUPATION選擇拿掉，因為有些職業的人很少，抽樣會沒抽到。
+m3 <- glm(formula = Count_plus2 ~ . , family = gaussian(link = "identity"), 
+    data = out3, na.action = na.exclude)
+summary(m3) #r^2 =.302 ##拿掉職業還是有.3
+
+DVASdata2 <- DVASdata %>% select(-ACTIONID, -Count, -X1.4.5.6,
+                                  -高危機.死亡, -lng, -lat, -district,
+                                  -town, -施暴武器說明, -Count_plus, -OCCUPATION) 
+#倒回去看看有沒有overfitting..
+y4 <- predict.glm(m3, newdata = DVASdata2, type = "response")
+DVASdata$Predicty4 <- unlist(y4)
+
+#畫出來
+plot(DVASdata$Count_plus2,DVASdata2$Predicty4) #boxplot
+plot(as.numeric(DVASdata$Count_plus2),DVASdata2$Predicty4) #row plot
+plot(as.numeric(DVASdata$Count),DVASdata2$Predicty4)
 
