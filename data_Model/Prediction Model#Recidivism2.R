@@ -84,7 +84,19 @@ y4 <- predict.glm(m3, newdata = DVASdata2, type = "response")
 DVASdata$Predicty4 <- unlist(y4)
 
 #畫出來
-plot(DVASdata$Count_plus2,DVASdata2$Predicty4) #boxplot
-plot(as.numeric(DVASdata$Count_plus2),DVASdata2$Predicty4) #row plot
-plot(as.numeric(DVASdata$Count),DVASdata2$Predicty4)
+plot(DVASdata$Count_plus2,DVASdata$Predicty4) #boxplot
+plot(as.numeric(DVASdata$Count_plus2),DVASdata$Predicty4) #row plot
+plot(as.numeric(DVASdata$Count),DVASdata$Predicty4)
 
+#改用logistic regression (分兩組變成binary data)
+out3$Count_plus2 <- as.character(out3$Count_plus2)
+out3$Count_plus2[out3$Count_plus2 == "1"] <- "0"
+out3$Count_plus2[out3$Count_plus2 == "2"] <- "1"
+out3$Count_plus2 <- as.factor(out3$Count_plus2)
+m4 <- glm(formula = Count_plus2 ~ . , family=binomial(link="logit"), 
+           data = out3, na.action = na.exclude)
+summary(m4)  # r^2 =.275 變少了...
+y5 <- predict.glm(m4, newdata = DVASdata2, type = "response")
+DVASdata$Predicty5 <- unlist(y5)
+
+plot(as.numeric(DVASdata$Count_plus2),DVASdata$Predicty5) #完全分不開..
